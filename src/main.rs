@@ -1,34 +1,38 @@
-//! # Commandline binary number to decimal convertor.
-//! input a binary number (in `0` and `1`) and press ENTER,
-//! the decimal form of it will be printed out.
-//!
-//! You can input at most **8** digits one line, for a `u8`.
+//! # Bin2Dec - 二进制数转十进制
+//! 
+//! 参见 [app-ideas/Bin2Dec](https://github.com/florinpop17/app-ideas/blob/master/Projects/1-Beginner/Bin2Dec-App.md)
+//! 
+//! ## 用法
+//! `cargo run` 编译并运行程序，每行输入一个二进制数字，按 ENTER 键转换数字。
+//! 
+//! ## 错误
+//! 1. 输入除 1 和 0 以外的字符；
+//! 2. 输入超过 8 个数字；
+//! 3. 没有输入；
 
 use std::io;
 use std::io::Write;
 
 fn main() -> io::Result<()> {
-    println!("Convert binary number to decimal.");
+    println!("bin2dec");
 
     let mut buffer = String::new();
     loop {
         print!("> ");
-        // flush stdout to make prompt visible
         io::stdout().flush()?;
 
         buffer.clear();
         let _ = io::stdin().read_line(&mut buffer)?;
 
-        // must trim buffer to remove trailing line seperator
-        // shouldn't use `&buffer[..buffer.len() - 1]` because on Windows, 
-        // the seperator is `\r\n`, which occupies two `u8`s
-        let digits = buffer.trim_end();
+        // Stdin::read_line 会在末尾添加换行符，这里必须去掉，同时去掉首尾的空格
+        // 需要注意的是，即使不用去掉首尾空格，也不能简单地用 &buffer[..buffer.len() - 1]，
+        // 因为 Windows 下换行符是 CRLF，是两个字符
+        let digits = buffer.trim();
         if digits.len() > 8 {
             eprintln!("input too long , 8 digits at most");
             continue;
         }
 
-        // can't use `str.parse` because it can only used to parse decimals.
         match u8::from_str_radix(digits, 2) {
             Ok(result) => println!("{} => {}", digits, result),
             Err(err) => eprintln!("input is not valid\n\t{:?}", err),
