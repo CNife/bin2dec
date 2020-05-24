@@ -3,30 +3,26 @@ use std::io::Write;
 
 const MAX_DIGITS: usize = 8;
 
-fn main() {
+fn main() -> io::Result<()> {
     println!("Convert binary number to decimal.");
 
     let mut buffer = String::new();
     loop {
-        print!("Input: ");
-        io::stdout().flush().expect("Error when flushing stdout");
+        print!("> ");
+        io::stdout().flush()?;
 
         buffer.clear();
-        match io::stdin().read_line(&mut buffer) {
-            Ok(len) => {
-                if len - 1 > MAX_DIGITS {
-                    eprintln!("Too Long, 8 digits at most");
-                    continue;
-                }
+        let _ = io::stdin().read_line(&mut buffer)?;
 
-                match u8::from_str_radix(&buffer.trim_end(), 2) {
-                    Ok(result) => println!("{}", result),
-                    Err(parse_err) => eprintln!("Error when parsing: {:?}", parse_err),
-                }
-            }
-            Err(err) => {
-                eprintln!("Error when reading stdin: {:?}", err)
-            }
+        let digits = buffer.trim_end();
+        if digits.len() > MAX_DIGITS {
+            eprintln!("input too long , {} digits at most", MAX_DIGITS);
+            continue;
+        }
+
+        match u8::from_str_radix(digits, 2) {
+            Ok(result) => println!("{} => {}", digits, result),
+            Err(err) => eprintln!("input is not valid\n\t{:?}", err),
         }
     }
 }
